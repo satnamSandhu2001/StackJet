@@ -28,6 +28,7 @@ import (
 	"github.com/satnamSandhu2001/stackjet/internal/dto"
 	"github.com/satnamSandhu2001/stackjet/internal/services"
 	"github.com/satnamSandhu2001/stackjet/pkg"
+	"github.com/satnamSandhu2001/stackjet/pkg/colors"
 	"github.com/spf13/cobra"
 )
 
@@ -101,7 +102,7 @@ Note: The directory must contain a StackJet-managed application (added via 'stac
 		})
 		if err != nil {
 			multiWriter.Write([]byte("__ERROR__: " + err.Error()))
-			fmt.Printf("\033[31m⚠️ Deployment failed: %v \033[0m", err)
+			fmt.Printf(colors.Red("Deployment failed: "), err)
 			return
 		}
 		// Save logs to DB

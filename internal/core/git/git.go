@@ -4,27 +4,48 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/satnamSandhu2001/stackjet/internal/dto"
 	"github.com/satnamSandhu2001/stackjet/internal/services"
+	"github.com/satnamSandhu2001/stackjet/pkg/colors"
 	"github.com/satnamSandhu2001/stackjet/pkg/commands"
 	"github.com/satnamSandhu2001/stackjet/pkg/logger"
 )
 
 // Verifies access to git repo
-func VerifyAccess(w io.Writer, repoUrl string) error {
+func VerifyAccess(w io.Writer, repoUrl string, branch string) error {
 	repoUrl = strings.TrimSpace(repoUrl)
+	branch = strings.TrimSpace(branch)
 	logger.EmitLog(w, "")
-	logger.EmitLog(w, "📡 Verifying Git Repo Access ...")
-	if _, err := commands.RunCommand(commands.RunCommandArgs{Logger: w, Name: "git", Args: []string{"ls-remote", repoUrl}, Env: map[string]string{"GIT_TERMINAL_PROMPT": "0"}}); err != nil {
+	logger.EmitLog(w, " Verifying Git Repo Access ...")
+
+	// Check if the repo and specified branch exists in the remote repository
+	var envVars map[string]string
+	if w != os.Stdout {
+		envVars = map[string]string{"GIT_TERMINAL_PROMPT": "0"} // disable password prompt if not using cli
+	}
+	output, err := commands.RunCommand(commands.RunCommandArgs{
+		Logger: w,
+		Name:   "git",
+		Args:   []string{"ls-remote", "--heads", repoUrl, branch},
+		Env:    envVars,
+	})
+	if err != nil {
+		if strings.Contains(output, "Authentication failed") {
+			logger.EmitLog(w, colors.RedBoldItalic("Authentication failed!. Please check your git credentials and try again."))
+		}
 		return err
 	}
+	if strings.TrimSpace(output) == "" {
+		return fmt.Errorf("branch '%s' does not exist in repository '%s'", branch, repoUrl)
+	}
+
 	return nil
 }
 
 func CloneRepo(w io.Writer, gitRepo string, gitBranch string, gitRemote string) error {
-	// trim whitespace from input strings
 	gitRepo = strings.TrimSpace(gitRepo)
 	gitBranch = strings.TrimSpace(gitBranch)
 	gitRemote = strings.TrimSpace(gitRemote)

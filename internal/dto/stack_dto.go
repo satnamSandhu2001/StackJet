@@ -58,3 +58,14 @@ type DeploymentLog_Create_Request struct {
 	DeploymentID int64  `db:"deployment_id" json:"deployment_id"`
 	Log          string `db:"log" json:"log"`
 }
+
+type Stack_List_Request struct {
+	ID                       int64  `db:"id" json:"id"`
+	Name                     string `db:"name" json:"name"`
+	Directory                string `db:"directory" json:"directory"`
+	Type                     string `db:"type" json:"type"`
+	RepoUrl                  string `db:"repo_url" json:"repo_url"`
+	Port                     int    `db:"port" json:"port"`
+	CreatedSuccessfully      bool   `db:"created_successfully" json:"created_successfully"`
+	InitialDeploymentSuccess bool   `db:"initial_deployment_success" json:"initial_deployment_success"`
+}

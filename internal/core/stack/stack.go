@@ -153,7 +153,7 @@ func CreateNewStack(w io.Writer, ctx context.Context, service services.StackServ
 	}
 
 	// validate git repo access
-	if err := git.VerifyAccess(w, opts.RepoUrl); err != nil {
+	if err := git.VerifyAccess(w, opts.RepoUrl, opts.Branch); err != nil {
 		return err
 	}
 	// validate port

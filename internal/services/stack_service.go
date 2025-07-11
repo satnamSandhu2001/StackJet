@@ -63,10 +63,33 @@ func (s *StackService) CreateStack(ctx context.Context, data *dto.Stack_Create_R
 	return newStackID, nil
 }
 
-func (s *StackService) GetStackList(ctx context.Context) ([]models.Stack, error) {
+// stack list with filters
+func (s *StackService) GetStackList(ctx context.Context, filters *dto.Stack_List_Request) ([]models.Stack, error) {
 	var stacks []models.Stack
 
-	query, args, err := sq.Select("*").From("stacks").PlaceholderFormat(sq.Question).ToSql()
+	queryBuilder := sq.Select("*").From("stacks").PlaceholderFormat(sq.Question)
+	if filters != nil {
+		if filters.Name != "" {
+			queryBuilder = queryBuilder.Where(sq.Like{"name": "%" + filters.Name + "%"})
+		}
+		if filters.Type != "" {
+			queryBuilder = queryBuilder.Where(sq.Like{"type": "%" + filters.Type + "%"})
+		}
+		if filters.RepoUrl != "" {
+			queryBuilder = queryBuilder.Where(sq.Like{"repo_url": "%" + filters.RepoUrl + "%"})
+		}
+		if filters.Port != 0 {
+			queryBuilder = queryBuilder.Where(sq.Eq{"port": filters.Port})
+		}
+		if filters.CreatedSuccessfully {
+			queryBuilder = queryBuilder.Where(sq.Eq{"created_successfully": filters.CreatedSuccessfully})
+		}
+		if filters.InitialDeploymentSuccess {
+			queryBuilder = queryBuilder.Where(sq.Eq{"initial_deployment_success": filters.InitialDeploymentSuccess})
+		}
+	}
+
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return nil, err
 	}

@@ -19,6 +19,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/satnamSandhu2001/stackjet/pkg/colors"
 	"github.com/satnamSandhu2001/stackjet/pkg/initializer"
 	"github.com/spf13/cobra"
 )
@@ -46,8 +47,8 @@ After initialization, you can add your first application:
 	Run: func(cmd *cobra.Command, args []string) {
 		initializer.InitializeApp(forceRecreateConfig)
 		fmt.Println("✅ StackJet initialized successfully.")
-		fmt.Print("\nRun \033[1;34mstackjet add --tech nodejs --port 3000 --repo <git repo url>\033[0m to add new app.\n\n")
-		fmt.Print("\nOr \033[1;34mstackjet add --help\033[0m for more information.\n\n")
+		fmt.Printf("\nRun %s to add new app.\n", colors.SecondaryBold("stackjet add --tech nodejs --port 3000 --repo <git repo url>"))
+		fmt.Printf("Or %s for more information.\n\n", colors.SecondaryBold("stackjet add --help"))
 	},
 }
 
