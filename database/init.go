@@ -5,6 +5,7 @@ import (
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/satnamSandhu2001/stackjet/pkg"
+	"github.com/satnamSandhu2001/stackjet/pkg/colors"
 )
 
 func RunInitSQL() error {
@@ -33,9 +34,9 @@ func RunInitSQL() error {
 		return fmt.Errorf("admin insert failed: %w", err)
 	}
 
-	fmt.Println("\033[1;34m🔐 Admin user created with the following credentials:\033[0m")
-	fmt.Printf("\033[34m      email:    %s\033[0m\n", email)
-	fmt.Printf("\033[34m      password: %s\033[0m\n\n", password)
+	fmt.Println(colors.SecondaryBold("🔐 Admin user created with the following credentials:"))
+	fmt.Printf(colors.Secondary("      email:    %s\n"), email)
+	fmt.Printf(colors.Secondary("      password: %s\n"), password)
 
 	return nil
 }

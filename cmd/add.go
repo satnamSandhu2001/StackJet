@@ -17,6 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"os"
@@ -34,6 +35,8 @@ import (
 )
 
 var (
+	interactive bool
+
 	stackType    string
 	repoUrl      string
 	branch       string
@@ -83,22 +86,65 @@ After adding an application, deploy it with:
   stackjet deploy --dir /path/to/deployed/app`,
 
 	PreRunE: func(cmd *cobra.Command, args []string) error {
+		var reader = bufio.NewReader(os.Stdin)
+
 		// validate stack flag
-		if ok := stack.IsValidStackType(strings.TrimSpace(stackType)); !ok {
+		stackType = strings.TrimSpace(stackType)
+		if interactive && stackType == "" {
+			stackType = helpers.AskForOptionNumber(reader, "Select Application Tech Stack: ", 1, pkg.Config().VALID_STACKS)
+		}
+		if ok := stack.IsValidStackType(stackType); !ok {
 			return fmt.Errorf(`⭕ Invalid stack: "%s".
    Valid options are: "%s"`, stackType, strings.Join(pkg.Config().VALID_STACKS, `", "`))
 		}
-		if strings.TrimSpace(repoUrl) == "" {
+
+		// validate repo url
+		repoUrl = strings.TrimSpace(repoUrl)
+		if interactive && repoUrl == "" {
+			repoUrl = helpers.AskForString(reader, "Git Repository URL: ", "")
+		}
+		if repoUrl == "" {
 			return fmt.Errorf("⭕ Git repository URL is required. Use -r or --git-repo to specify the repository URL")
 		}
-		if port == 0 {
+
+		// validate branch and remote
+		if branch == "" {
+			if interactive {
+				branch = helpers.AskForString(reader, fmt.Sprintf("Git Branch (default '%s'): ", pkg.Config().GIT_BRANCH), pkg.Config().GIT_BRANCH)
+			} else {
+				branch = pkg.Config().GIT_BRANCH
+			}
+		}
+		if remote == "" {
+			if interactive {
+				remote = helpers.AskForString(reader, fmt.Sprintf("Git Remote (default '%s'): ", pkg.Config().GIT_REMOTE), pkg.Config().GIT_REMOTE)
+			} else {
+				remote = pkg.Config().GIT_REMOTE
+			}
+		}
+
+		// validate port
+		if interactive && port == 0 {
+			port = helpers.AskForInt(reader, "Application Port: ", 0)
+		}
+		if !interactive && port == 0 {
 			return fmt.Errorf("⭕ Port is required. Use -p or --port to specify the port")
 		}
 		if err := commands.ValidatePort(port); err != nil {
 			return err
 		}
-		// validate start commands
+
+		// validate build command
+		buildCommand = strings.TrimSpace(buildCommand)
+		if interactive && buildCommand == "" {
+			buildCommand = helpers.AskForString(reader, "Build Command: ", "")
+		}
+
+		// validate start command
 		startCommand = strings.TrimSpace(startCommand)
+		if interactive && startCommand == "" {
+			startCommand = helpers.AskForString(reader, "Start Command: ", "")
+		}
 		if startCommand != "" {
 			switch stackType {
 			case "nodejs":
@@ -108,13 +154,12 @@ After adding an application, deploy it with:
 			}
 		}
 
-		// set default values
-		if branch == "" {
-			branch = pkg.Config().GIT_BRANCH
+		// validate post command
+		postCommand = strings.TrimSpace(postCommand)
+		if interactive && postCommand == "" {
+			postCommand = helpers.AskForString(reader, "Post Start Command: ", "")
 		}
-		if remote == "" {
-			remote = pkg.Config().GIT_REMOTE
-		}
+
 		return nil
 	},
 
@@ -161,6 +206,7 @@ func init() {
 	addCmd.Flags().StringVar(&buildCommand, "build", "", "Build commands (e.g. 'npm i && npm run build', 'mvn clean package', 'gradle build', etc...)")
 	addCmd.Flags().StringVar(&startCommand, "start", "", "App start commands (e.g. 'npm start', 'mvn spring-boot:run', 'gradle bootRun', etc...)")
 	addCmd.Flags().StringVar(&postCommand, "post", "", "Post deployment commands (e.g. 'npm run post-deploy', 'mvn post-deploy', 'gradle post-deploy', etc...)")
+	addCmd.Flags().BoolVar(&interactive, "interactive", true, "Toogle interactive mode (default true)")
 
 	// register auto completion for stack flag
 	addCmd.RegisterFlagCompletionFunc("stack", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {

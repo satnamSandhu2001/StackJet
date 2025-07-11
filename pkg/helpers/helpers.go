@@ -1,13 +1,17 @@
 package helpers
 
 import (
+	"bufio"
 	"errors"
+	"fmt"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
 	"github.com/satnamSandhu2001/stackjet/pkg"
+	"github.com/satnamSandhu2001/stackjet/pkg/colors"
 )
 
 // Bool, Int, Int16, String, Uint are helpers to create a pointer to a values
@@ -60,4 +64,56 @@ func ValidateNodeStartCommand(command string) error {
 
 	return nil
 
+}
+
+// ask for user input string via command line
+func AskForString(reader *bufio.Reader, label string, defaultVal string) string {
+	fmt.Print(colors.PrimaryBold("? ") + colors.Bold(label))
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return defaultVal
+	}
+	return input
+}
+
+// ask for user input int via command line
+func AskForInt(reader *bufio.Reader, label string, defaultVal int) int {
+	fmt.Print(colors.PrimaryBold("? ") + colors.Bold(label))
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return defaultVal
+	}
+	if val, err := strconv.Atoi(input); err == nil {
+		return val
+	}
+	return defaultVal
+}
+
+// ask for user input bool via command line
+func AskForBool(reader *bufio.Reader, label string, defaultVal bool) bool {
+	fmt.Printf(colors.PrimaryBold("? ")+"%s [%s/%s]: ", colors.Bold(label), "y", "n")
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(strings.ToLower(input))
+
+	if input == "" {
+		return defaultVal
+	}
+	return input == "y" || input == "yes"
+}
+func AskForOptionNumber(reader *bufio.Reader, label string, defaultChoice int, options []string) string {
+	fmt.Println(colors.PrimaryBold("? ") + colors.Bold(label))
+	for i, option := range options {
+		fmt.Printf("   [%d] %s\n", i+1, option)
+	}
+	fmt.Printf("   Enter Please enter a choice [Default choice(%d)]: ", defaultChoice)
+
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
+	choice, err := strconv.Atoi(input)
+	if err == nil && choice > 0 && choice <= len(options) {
+		return options[choice-1]
+	}
+	return options[defaultChoice-1]
 }

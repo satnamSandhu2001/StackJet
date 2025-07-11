@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+
+	"github.com/satnamSandhu2001/stackjet/pkg/colors"
 )
 
 type AppConfig struct {
@@ -42,7 +44,7 @@ func Config() *AppConfig {
 			fmt.Println("❌ StackJet Not Initialized")
 			fmt.Println("\nStackJet has not been initialized on this system.")
 			fmt.Println("\n🚀 To get started, run:")
-			fmt.Println("   \033[1;34mstackjet init\033[0m")
+			fmt.Println(colors.SecondaryBold("stackjet init"))
 			fmt.Println("\nThis will set up the necessary configuration files.")
 			os.Exit(1)
 		}
@@ -54,14 +56,14 @@ func Config() *AppConfig {
 				fmt.Println("❌ StackJet Configuration Missing")
 				fmt.Println("\nConfiguration file not found.")
 				fmt.Println("\n🔧 To fix this issue, run:")
-				fmt.Println("   \033[1;34mstackjet init\033[0m")
+				fmt.Println(colors.SecondaryBold("stackjet init"))
 				fmt.Println("\nThis will recreate the necessary configuration.")
 				os.Exit(1)
 			}
 			fmt.Println("❌ StackJet Configuration Error")
 			fmt.Println("Unable to read configuration file.")
 			fmt.Println("\n🔧 To fix this issue, try:")
-			fmt.Println("   \033[1;34mstackjet init\033[0m")
+			fmt.Println(colors.SecondaryBold("stackjet init"))
 			os.Exit(1)
 		}
 
@@ -70,7 +72,7 @@ func Config() *AppConfig {
 			fmt.Println("❌ StackJet Configuration Error")
 			fmt.Println("Configuration file is corrupted or invalid.")
 			fmt.Println("\n🔧 To fix this issue, run:")
-			fmt.Println("   \033[1;34mstackjet init\033[0m")
+			fmt.Println(colors.SecondaryBold("stackjet init"))
 			fmt.Println("\nThis will recreate a fresh configuration.")
 			os.Exit(1)
 		}
@@ -81,7 +83,7 @@ func Config() *AppConfig {
 			fmt.Println("❌ StackJet Authentication Error")
 			fmt.Println("Authentication token not found or corrupted.")
 			fmt.Println("\n🔧 To fix this issue, run:")
-			fmt.Println("   \033[1;34mstackjet init\033[0m")
+			fmt.Println(colors.SecondaryBold("stackjet init"))
 			fmt.Println("\nThis will regenerate the authentication token.")
 			os.Exit(1)
 		}

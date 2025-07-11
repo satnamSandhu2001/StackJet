@@ -86,7 +86,7 @@ func (h *StackHandler) DeployStack(c *gin.Context) {
 }
 
 func (h *StackHandler) ListStacks(c *gin.Context) {
-	stacks, err := h.service.GetStackList(c.Request.Context())
+	stacks, err := h.service.GetStackList(c.Request.Context(), nil)
 	if err != nil {
 		API.Error(c, "failed to list stacks")
 		return

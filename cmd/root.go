@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/satnamSandhu2001/stackjet/pkg/colors"
 	"github.com/spf13/cobra"
 )
 
@@ -65,10 +66,12 @@ func init() {
 }
 
 func printBanner() {
-	fmt.Printf(`%s%s
+	banner := `
 	╭─────────────────────────╮
 	│     🚀 StackJet 🚀      │
 	╰─────────────────────────╯
 	   Deploy Fast, Fly High!
-%s%s`, "\033[1m", "\033[32m", "\033[0m", "\n\n")
+`
+
+	fmt.Println(colors.PrimaryBold(banner) + "\n")
 }
